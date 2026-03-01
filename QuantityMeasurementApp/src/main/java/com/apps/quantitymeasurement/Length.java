@@ -1,16 +1,18 @@
 package com.apps.quantitymeasurement;
 
-
 public class Length {
 
+    // Instance variables
     private final double value;
     private final LengthUnit unit;
 
-    // ENUM
+    // Enum for supported units (Base unit = INCHES)
     public enum LengthUnit {
 
-        FEET(12.0),      // 1 foot = 12 inches
-        INCHES(1.0);     // Base unit
+        FEET(12.0),          // 1 foot = 12 inches
+        INCHES(1.0),         // Base unit
+        YARDS(36.0),         // 1 yard = 36 inches
+        CENTIMETERS(0.393701); // 1 cm = 0.393701 inches
 
         private final double conversionFactor;
 
@@ -34,29 +36,38 @@ public class Length {
         this.unit = unit;
     }
 
-    // Convert to base unit (inches)
+    // Convert to base unit (INCHES)
     private double convertToBaseUnit() {
-        return this.value * this.unit.getConversionFactor();
+
+        double result = this.value * this.unit.getConversionFactor();
+
+        // Round to 5 decimal places for precision safety
+        return Math.round(result * 100000.0) / 100000.0;
     }
 
     // Compare two Length objects
-    public boolean compare(Length other) {
-        if (other == null) return false;
+    public boolean compare(Length thatLength) {
 
-        return Double.compare(this.convertToBaseUnit(),
-                other.convertToBaseUnit()) == 0;
+        if (thatLength == null) return false;
+
+        double diff = Math.abs(
+                this.convertToBaseUnit() -
+                        thatLength.convertToBaseUnit()
+        );
+
+        return diff < 0.00001;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object o) {
 
-        if (this == obj) return true;
+        if (this == o) return true;
 
-        if (obj == null) return false;
+        if (o == null) return false;
 
-        if (getClass() != obj.getClass()) return false;
+        if (getClass() != o.getClass()) return false;
 
-        Length other = (Length) obj;
+        Length other = (Length) o;
 
         return compare(other);
     }
@@ -65,6 +76,13 @@ public class Length {
     public int hashCode() {
         return Double.hashCode(convertToBaseUnit());
     }
+
+    // Getters
+    public double getValue() {
+        return value;
+    }
+
+    public LengthUnit getUnit() {
+        return unit;
+    }
 }
-
-
