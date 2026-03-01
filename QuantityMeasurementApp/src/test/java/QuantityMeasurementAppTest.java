@@ -1,92 +1,83 @@
-
-
-//package com.apps.quantitymeasurement;
-
-import com.apps.quantitymeasurement.QuantityMeasurementApp;
+import com.apps.quantitymeasurement.Length;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 public class QuantityMeasurementAppTest {
 
-    // -------------------- FEET TEST CASES --------------------
-
     @Test
-    public void testFeetEquality_SameValue() {
-        QuantityMeasurementApp.Feet f1 = new QuantityMeasurementApp.Feet(1.0);
-        QuantityMeasurementApp.Feet f2 = new QuantityMeasurementApp.Feet(1.0);
+    public void testFeetEquality() {
+        Length l1 = new Length(1.0, Length.LengthUnit.FEET);
+        Length l2 = new Length(1.0, Length.LengthUnit.FEET);
 
-        assertTrue(f1.equals(f2), "1.0 ft should be equal to 1.0 ft");
+        AssertJUnit.assertTrue(l1.equals(l2));
     }
 
     @Test
-    public void testFeetEquality_DifferentValue() {
-        QuantityMeasurementApp.Feet f1 = new QuantityMeasurementApp.Feet(1.0);
-        QuantityMeasurementApp.Feet f2 = new QuantityMeasurementApp.Feet(2.0);
+    public void testInchesEquality() {
+        Length i1 = new Length(1.0, Length.LengthUnit.INCHES);
+        Length i2 = new Length(1.0, Length.LengthUnit.INCHES);
 
-        assertFalse(f1.equals(f2), "1.0 ft should not be equal to 2.0 ft");
+        AssertJUnit.assertTrue(i1.equals(i2));
     }
 
     @Test
-    public void testFeetEquality_NullComparison() {
-        QuantityMeasurementApp.Feet f1 = new QuantityMeasurementApp.Feet(1.0);
+    public void testFeetInchesComparison() {
+        Length l1 = new Length(1.0, Length.LengthUnit.FEET);
+        Length l2 = new Length(12.0, Length.LengthUnit.INCHES);
 
-        assertFalse(f1.equals(null), "Feet object should not be equal to null");
+        AssertJUnit.assertTrue(l1.equals(l2));
     }
 
     @Test
-    public void testFeetEquality_DifferentClass() {
-        QuantityMeasurementApp.Feet f1 = new QuantityMeasurementApp.Feet(1.0);
-        String other = "1.0";
+    public void testFeetInequality() {
+        Length l1 = new Length(1.0, Length.LengthUnit.FEET);
+        Length l2 = new Length(2.0, Length.LengthUnit.FEET);
 
-        assertFalse(f1.equals(other), "Feet object should not be equal to different class object");
+        AssertJUnit.assertFalse(l1.equals(l2));
     }
 
     @Test
-    public void testFeetEquality_SameReference() {
-        QuantityMeasurementApp.Feet f1 = new QuantityMeasurementApp.Feet(1.0);
+    public void testInchesInequality() {
+        Length i1 = new Length(1.0, Length.LengthUnit.INCHES);
+        Length i2 = new Length(2.0, Length.LengthUnit.INCHES);
 
-        assertTrue(f1.equals(f1), "Object should be equal to itself (reflexive property)");
-    }
-
-    // -------------------- INCHES TEST CASES --------------------
-
-    @Test
-    public void testInchesEquality_SameValue() {
-        QuantityMeasurementApp.Inches i1 = new QuantityMeasurementApp.Inches(1.0);
-        QuantityMeasurementApp.Inches i2 = new QuantityMeasurementApp.Inches(1.0);
-
-        assertTrue(i1.equals(i2), "1.0 inch should be equal to 1.0 inch");
+        AssertJUnit.assertFalse(i1.equals(i2));
     }
 
     @Test
-    public void testInchesEquality_DifferentValue() {
-        QuantityMeasurementApp.Inches i1 = new QuantityMeasurementApp.Inches(1.0);
-        QuantityMeasurementApp.Inches i2 = new QuantityMeasurementApp.Inches(2.0);
+    public void testCrossUnitInequality() {
+        Length l1 = new Length(1.0, Length.LengthUnit.FEET);
+        Length l2 = new Length(10.0, Length.LengthUnit.INCHES);
 
-        assertFalse(i1.equals(i2), "1.0 inch should not be equal to 2.0 inch");
+        AssertJUnit.assertFalse(l1.equals(l2));
     }
 
     @Test
-    public void testInchesEquality_NullComparison() {
-        QuantityMeasurementApp.Inches i1 = new QuantityMeasurementApp.Inches(1.0);
+    public void testMultipleFeetComparison() {
+        Length l1 = new Length(2.0, Length.LengthUnit.FEET);
+        Length l2 = new Length(24.0, Length.LengthUnit.INCHES);
 
-        assertFalse(i1.equals(null), "Inches object should not be equal to null");
+        AssertJUnit.assertTrue(l1.equals(l2));
     }
 
     @Test
-    public void testInchesEquality_DifferentClass() {
-        QuantityMeasurementApp.Inches i1 = new QuantityMeasurementApp.Inches(1.0);
-        Integer other = 1;
+    public void testSameReference() {
+        Length l1 = new Length(1.0, Length.LengthUnit.FEET);
 
-        assertFalse(i1.equals(other), "Inches object should not be equal to different class object");
+        AssertJUnit.assertTrue(l1.equals(l1));
     }
 
     @Test
-    public void testInchesEquality_SameReference() {
-        QuantityMeasurementApp.Inches i1 = new QuantityMeasurementApp.Inches(1.0);
+    public void testNullComparison() {
+        Length l1 = new Length(1.0, Length.LengthUnit.FEET);
 
-        assertTrue(i1.equals(i1), "Object should be equal to itself (reflexive property)");
+        AssertJUnit.assertFalse(l1.equals(null));
+    }
+
+    @Test
+    public void testNullUnit() {
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                new Length(1.0, null));
     }
 }
