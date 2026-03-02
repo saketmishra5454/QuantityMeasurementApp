@@ -6,13 +6,15 @@ public class Length {
     private final double value;
     private final LengthUnit unit;
 
+    private static final double EPSILON = 1e-6;
+
     // Enum for supported units (Base unit = INCHES)
     public enum LengthUnit {
 
         FEET(12.0),          // 1 foot = 12 inches
         INCHES(1.0),         // Base unit
         YARDS(36.0),         // 1 yard = 36 inches
-        CENTIMETERS(0.393701); // 1 cm = 0.393701 inches
+        CENTIMETERS(1.0 / 2.54); // 1 cm = 0.393701 inches
 
         private final double conversionFactor;
 
@@ -28,12 +30,24 @@ public class Length {
     // Constructor
     public Length(double value, LengthUnit unit) {
 
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException("Value must be finite.");
+        }
         if (unit == null) {
-            throw new IllegalArgumentException("Unit cannot be null");
+            throw new IllegalArgumentException("Unit cannot be null.");
         }
 
         this.value = value;
         this.unit = unit;
+    }
+
+    // Getters
+    public double getValue() {
+        return value;
+    }
+
+    public LengthUnit getUnit() {
+        return unit;
     }
 
     // Convert to base unit (INCHES)
@@ -42,20 +56,29 @@ public class Length {
         double result = this.value * this.unit.getConversionFactor();
 
         // Round to 5 decimal places for precision safety
-        return Math.round(result * 100000.0) / 100000.0;
+        return Math.round(result * 1000000.0) / 1000000.0;
     }
 
     // Compare two Length objects
-    public boolean compare(Length thatLength) {
+    public Length convertTo(LengthUnit targetUnit) {
+        if (targetUnit == null) {
+            throw new IllegalArgumentException("Target unit cannot be null.");
+        }
 
-        if (thatLength == null) return false;
+        double baseValue = convertToBaseUnit();
+        double convertedValue = baseValue / targetUnit.getConversionFactor();
 
-        double diff = Math.abs(
+        return new Length(convertedValue, targetUnit);
+    }
+
+
+     // Private helper comparison method.
+
+    private boolean compare(Length other) {
+        return Math.abs(
                 this.convertToBaseUnit() -
-                        thatLength.convertToBaseUnit()
-        );
-
-        return diff < 0.00001;
+                        other.convertToBaseUnit()
+        ) < EPSILON;
     }
 
     @Override
@@ -77,12 +100,9 @@ public class Length {
         return Double.hashCode(convertToBaseUnit());
     }
 
-    // Getters
-    public double getValue() {
-        return value;
-    }
-
-    public LengthUnit getUnit() {
-        return unit;
+    @Override
+    public String toString() {
+        return String.format("%.2f %s", value, unit);
     }
 }
+

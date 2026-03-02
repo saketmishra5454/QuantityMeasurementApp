@@ -1,111 +1,72 @@
-//package com.apps.quantitymeasurement;
+package com.apps.quantitymeasurement;
 
-import com.apps.quantitymeasurement.Length;
-import com.apps.quantitymeasurement.QuantityMeasurementApp;
 import org.junit.Test;
-import static org.junit.Assert.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.junit.Assert.*;
 
 public class QuantityMeasurementAppTest {
 
+    private static final double EPSILON = 1e-6;
+
+    // ======================================================
+    // UC1 / UC4 : Equality Tests
+    // ======================================================
+
     @Test
-    public void testFeetEquality() {
-        Length l1 = new Length(1.0, Length.LengthUnit.FEET);
-        Length l2 = new Length(1.0, Length.LengthUnit.FEET);
-        assertTrue(l1.equals(l2));
+    public void testEquality_SameUnit() {
+        assertTrue(new Length(1.0, Length.LengthUnit.FEET)
+                .equals(new Length(1.0, Length.LengthUnit.FEET)));
     }
 
     @Test
-    public void testInchesEquality() {
-        Length l1 = new Length(1.0, Length.LengthUnit.INCHES);
-        Length l2 = new Length(1.0, Length.LengthUnit.INCHES);
-        assertTrue(l1.equals(l2));
+    public void testEquality_DifferentSameUnit() {
+        assertFalse(new Length(1.0, Length.LengthUnit.FEET)
+                .equals(new Length(2.0, Length.LengthUnit.FEET)));
     }
 
     @Test
-    public void testFeetInchesComparison() {
-        Length l1 = new Length(1.0, Length.LengthUnit.FEET);
-        Length l2 = new Length(12.0, Length.LengthUnit.INCHES);
-        assertTrue(l1.equals(l2));
+    public void testEquality_FeetToInches() {
+        assertTrue(new Length(1.0, Length.LengthUnit.FEET)
+                .equals(new Length(12.0, Length.LengthUnit.INCHES)));
     }
 
     @Test
-    public void testFeetInequality() {
-        Length l1 = new Length(1.0, Length.LengthUnit.FEET);
-        Length l2 = new Length(2.0, Length.LengthUnit.FEET);
-        assertFalse(l1.equals(l2));
+    public void testEquality_YardToFeet() {
+        assertTrue(new Length(1.0, Length.LengthUnit.YARDS)
+                .equals(new Length(3.0, Length.LengthUnit.FEET)));
     }
 
     @Test
-    public void testInchesInequality() {
-        Length l1 = new Length(1.0, Length.LengthUnit.INCHES);
-        Length l2 = new Length(2.0, Length.LengthUnit.INCHES);
-        assertFalse(l1.equals(l2));
+    public void testEquality_YardToInches() {
+        assertTrue(new Length(1.0, Length.LengthUnit.YARDS)
+                .equals(new Length(36.0, Length.LengthUnit.INCHES)));
     }
 
     @Test
-    public void testCrossUnitInequality() {
-        Length l1 = new Length(1.0, Length.LengthUnit.FEET);
-        Length l2 = new Length(10.0, Length.LengthUnit.INCHES);
-        assertFalse(l1.equals(l2));
+    public void testEquality_CentimeterToFoot() {
+        assertTrue(new Length(30.48, Length.LengthUnit.CENTIMETERS)
+                .equals(new Length(1.0, Length.LengthUnit.FEET)));
     }
 
     @Test
-    public void testMultipleFeetComparison() {
-        Length l1 = new Length(2.0, Length.LengthUnit.FEET);
-        Length l2 = new Length(24.0, Length.LengthUnit.INCHES);
-        assertTrue(l1.equals(l2));
+    public void testEquality_CrossUnitInequality() {
+        assertFalse(new Length(1.0, Length.LengthUnit.FEET)
+                .equals(new Length(10.0, Length.LengthUnit.INCHES)));
     }
 
     @Test
-    public void yardEquals36Inches() {
-        Length yard = new Length(1.0, Length.LengthUnit.YARDS);
-        Length inches = new Length(36.0, Length.LengthUnit.INCHES);
-        assertTrue(yard.equals(inches));
+    public void testEquality_NullComparison() {
+        assertFalse(new Length(1.0, Length.LengthUnit.FEET)
+                .equals(null));
     }
 
     @Test
-    public void centimeterEquals39Point3701Inches() {
-        Length cm = new Length(100.0, Length.LengthUnit.CENTIMETERS);
-        Length inches = new Length(39.3701, Length.LengthUnit.INCHES);
-        assertTrue(cm.equals(inches));
+    public void testEquality_ReferenceEquality() {
+        Length l = new Length(1.0, Length.LengthUnit.YARDS);
+        assertTrue(l.equals(l));
     }
 
     @Test
-    public void threeFeetEqualsOneYard() {
-        Length feet = new Length(3.0, Length.LengthUnit.FEET);
-        Length yard = new Length(1.0, Length.LengthUnit.YARDS);
-        assertTrue(feet.equals(yard));
-    }
-
-    @Test
-    public void thirtyPoint48CmEqualsOneFoot() {
-        Length cm = new Length(30.48, Length.LengthUnit.CENTIMETERS);
-        Length foot = new Length(1.0, Length.LengthUnit.FEET);
-        assertTrue(cm.equals(foot));
-    }
-
-    @Test
-    public void yardNotEqualToInches() {
-        Length yard = new Length(1.0, Length.LengthUnit.YARDS);
-        Length inches = new Length(30.0, Length.LengthUnit.INCHES);
-        assertFalse(yard.equals(inches));
-    }
-
-    @Test
-    public void referenceEqualitySameObject() {
-        Length l1 = new Length(1.0, Length.LengthUnit.YARDS);
-        assertTrue(l1.equals(l1));
-    }
-
-    @Test
-    public void equalsReturnsFalseForNull() {
-        Length l1 = new Length(1.0, Length.LengthUnit.FEET);
-        assertFalse(l1.equals(null));
-    }
-
-    @Test
-    public void reflexiveSymmetricAndTransitiveProperty() {
+    public void testEquality_ReflexiveSymmetricTransitive() {
 
         Length a = new Length(1.0, Length.LengthUnit.YARDS);
         Length b = new Length(3.0, Length.LengthUnit.FEET);
@@ -125,17 +86,126 @@ public class QuantityMeasurementAppTest {
     }
 
     @Test
-    public void differentValuesSameUnitNotEqual() {
-        Length l1 = new Length(2.0, Length.LengthUnit.FEET);
-        Length l2 = new Length(3.0, Length.LengthUnit.FEET);
-        assertFalse(l1.equals(l2));
-    }
-
-    @Test
-    public void crossUnitEqualityDemonstrateMethod() {
+    public void testEquality_UsingDemonstrateMethod() {
         Length l1 = new Length(1.0, Length.LengthUnit.YARDS);
         Length l2 = new Length(36.0, Length.LengthUnit.INCHES);
 
-        assertTrue(QuantityMeasurementApp.demonstrateLengthEquality(l1, l2));
+        assertTrue(QuantityMeasurementApp
+                .demonstrateLengthEquality(l1, l2));
+    }
+
+    // ======================================================
+    // UC5 : Conversion Tests
+    // ======================================================
+
+    @Test
+    public void testConversion_FeetToInches() {
+        assertEquals(12.0,
+                QuantityMeasurementApp.convert(1.0,
+                        Length.LengthUnit.FEET,
+                        Length.LengthUnit.INCHES),
+                EPSILON);
+    }
+
+    @Test
+    public void testConversion_InchesToFeet() {
+        assertEquals(2.0,
+                QuantityMeasurementApp.convert(24.0,
+                        Length.LengthUnit.INCHES,
+                        Length.LengthUnit.FEET),
+                EPSILON);
+    }
+
+    @Test
+    public void testConversion_YardsToInches() {
+        assertEquals(36.0,
+                QuantityMeasurementApp.convert(1.0,
+                        Length.LengthUnit.YARDS,
+                        Length.LengthUnit.INCHES),
+                EPSILON);
+    }
+
+    @Test
+    public void testConversion_InchesToYards() {
+        assertEquals(2.0,
+                QuantityMeasurementApp.convert(72.0,
+                        Length.LengthUnit.INCHES,
+                        Length.LengthUnit.YARDS),
+                EPSILON);
+    }
+
+    @Test
+    public void testConversion_CentimetersToInches() {
+        assertEquals(1.0,
+                QuantityMeasurementApp.convert(2.54,
+                        Length.LengthUnit.CENTIMETERS,
+                        Length.LengthUnit.INCHES),
+                EPSILON);
+    }
+
+    @Test
+    public void testConversion_FeetToYards() {
+        assertEquals(2.0,
+                QuantityMeasurementApp.convert(6.0,
+                        Length.LengthUnit.FEET,
+                        Length.LengthUnit.YARDS),
+                EPSILON);
+    }
+
+    @Test
+    public void testConversion_SameUnit() {
+        assertEquals(5.0,
+                QuantityMeasurementApp.convert(5.0,
+                        Length.LengthUnit.FEET,
+                        Length.LengthUnit.FEET),
+                EPSILON);
+    }
+
+    @Test
+    public void testConversion_Zero() {
+        assertEquals(0.0,
+                QuantityMeasurementApp.convert(0.0,
+                        Length.LengthUnit.FEET,
+                        Length.LengthUnit.INCHES),
+                EPSILON);
+    }
+
+    @Test
+    public void testConversion_Negative() {
+        assertEquals(-12.0,
+                QuantityMeasurementApp.convert(-1.0,
+                        Length.LengthUnit.FEET,
+                        Length.LengthUnit.INCHES),
+                EPSILON);
+    }
+
+    @Test
+    public void testConversion_RoundTripPreservesValue() {
+
+        double original = 5.0;
+
+        double converted =
+                QuantityMeasurementApp.convert(
+                        QuantityMeasurementApp.convert(original,
+                                Length.LengthUnit.FEET,
+                                Length.LengthUnit.YARDS),
+                        Length.LengthUnit.YARDS,
+                        Length.LengthUnit.FEET);
+
+        assertEquals(original, converted, EPSILON);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConversion_NullUnit_Throws() {
+        QuantityMeasurementApp.convert(1.0,
+                null,
+                Length.LengthUnit.INCHES);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConversion_NaN_Throws() {
+        QuantityMeasurementApp.convert(Double.NaN,
+                Length.LengthUnit.FEET,
+                Length.LengthUnit.INCHES);
     }
 }
