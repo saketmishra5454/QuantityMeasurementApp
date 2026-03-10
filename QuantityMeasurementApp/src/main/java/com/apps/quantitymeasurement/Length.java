@@ -2,16 +2,22 @@ package com.apps.quantitymeasurement;
 
 public class Length {
 
-
     private double value;
     private LengthUnit unit;
+
+    public double getValue() {
+        return value;
+    }
+
+    public LengthUnit getUnit() {
+        return unit;
+    }
 
     public enum LengthUnit{
         FEET(12.0),
         INCHES(1.0),
         YARDS(36.0),
         CENTIMETERS(0.393701);
-
 
         private final double conversionFactor;
 
@@ -22,8 +28,6 @@ public class Length {
         public double getConversionFactor(){
             return conversionFactor;
         }
-
-
     }
 
     public Length(double value , LengthUnit unit){
@@ -64,6 +68,18 @@ public class Length {
         return new Length(newValue,this.unit);
     }
 
+    public Length add(Length length,LengthUnit targetUnit){
+        return addAndConvert(length,targetUnit);
+    }
+
+    private Length addAndConvert(Length length , LengthUnit targetUnit){
+        double thisToBaseUnit = this.convertToBaseUnit();
+        double thatToBaseUnit = length.convertToBaseUnit();
+        double totalBaseUnit = thisToBaseUnit + thatToBaseUnit;
+        double newValue = totalBaseUnit / targetUnit.getConversionFactor();
+        return new Length(newValue,targetUnit);
+    }
+
     private double convertFromBaseToTargetUnit(double lengthInInches,LengthUnit targetUnit){
         double newValue = lengthInInches/targetUnit.getConversionFactor();
         return newValue;
@@ -82,6 +98,5 @@ public class Length {
         Length length4 = length2.convertTo(LengthUnit.INCHES);
         System.out.println(length3);
         System.out.println(length4);
-
     }
 }
