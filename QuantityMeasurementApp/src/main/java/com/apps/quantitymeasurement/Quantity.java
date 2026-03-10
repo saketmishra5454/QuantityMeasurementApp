@@ -38,6 +38,7 @@ public class Quantity<U extends IMeasurable> {
         double convertedValue = (value1 + value2)/this.unit.getConversionFactor();
         return new Quantity<>(convertedValue,this.unit);
     }
+
     // This method first converts the both quantity to their base unit , adds the value and then convert the sum back to the target unit.
     public Quantity<U> add(Quantity<U> other, U targetUnit){
         double value1 = this.unit.convertToBaseUnit(this.value);
@@ -90,4 +91,3 @@ public class Quantity<U extends IMeasurable> {
         System.out.println("Total weight in kilograms: " + totalWeight.getValue() + " " + totalWeight.getUnit());
     }
 }
-
