@@ -2,107 +2,86 @@ package com.apps.quantitymeasurement;
 
 public class Length {
 
-    // Instance variables
-    private final double value;
-    private final LengthUnit unit;
 
-    private static final double EPSILON = 1e-6;
+    private double value;
+    private LengthUnit unit;
 
-    // Enum for supported units (Base unit = INCHES)
-    public enum LengthUnit {
+    public enum LengthUnit{
+        FEET(12.0),
+        INCHES(1.0),
+        YARDS(36.0),
+        CENTIMETERS(0.393701);
 
-        FEET(12.0),          // 1 foot = 12 inches
-        INCHES(1.0),         // Base unit
-        YARDS(36.0),         // 1 yard = 36 inches
-        CENTIMETERS(1.0 / 2.54); // 1 cm = 0.393701 inches
 
         private final double conversionFactor;
 
-        LengthUnit(double conversionFactor) {
+        LengthUnit(double conversionFactor){
             this.conversionFactor = conversionFactor;
         }
 
-        public double getConversionFactor() {
+        public double getConversionFactor(){
             return conversionFactor;
         }
+
+
     }
 
-    // Constructor
-    public Length(double value, LengthUnit unit) {
-
-        if (!Double.isFinite(value)) {
-            throw new IllegalArgumentException("Value must be finite.");
-        }
-        if (unit == null) {
-            throw new IllegalArgumentException("Unit cannot be null.");
-        }
-
+    public Length(double value , LengthUnit unit){
         this.value = value;
         this.unit = unit;
     }
 
-    // Getters
-    public double getValue() {
-        return value;
+    public double convertToBaseUnit(){
+        double convertedIntoBaseUnit = this.value * this.unit.getConversionFactor();
+        return convertedIntoBaseUnit;
     }
 
-    public LengthUnit getUnit() {
-        return unit;
+    public boolean compare(Length thatLength){
+        if(thatLength == null) return false;
+        if(Math.abs(this.convertToBaseUnit() - thatLength.convertToBaseUnit()) < 0.0001) return true;
+        return false;
     }
 
-    // Convert to base unit (INCHES)
-    private double convertToBaseUnit() {
-
-        double result = this.value * this.unit.getConversionFactor();
-
-        // Round to 5 decimal places for precision safety
-        return Math.round(result * 1000000.0) / 1000000.0;
+    @Override
+    public boolean equals(Object o){
+        if(o == null) return false;
+        if(!(o instanceof Length)) return false;
+        return compare((Length) o);
     }
 
-    // Compare two Length objects
-    public Length convertTo(LengthUnit targetUnit) {
-        if (targetUnit == null) {
-            throw new IllegalArgumentException("Target unit cannot be null.");
-        }
-
+    public Length convertTo(LengthUnit targetUnit) throws IllegalArgumentException{
+        if(targetUnit == null) throw new IllegalArgumentException();
         double baseValue = convertToBaseUnit();
-        double convertedValue = baseValue / targetUnit.getConversionFactor();
-
-        return new Length(convertedValue, targetUnit);
+        double convertedValue = baseValue/ targetUnit.getConversionFactor();
+        return new Length(convertedValue,targetUnit);
     }
 
-
-     // Private helper comparison method.
-
-    private boolean compare(Length other) {
-        return Math.abs(
-                this.convertToBaseUnit() -
-                        other.convertToBaseUnit()
-        ) < EPSILON;
+    public Length add(Length thatLength){
+        double thisToBaseUnit = this.convertToBaseUnit();
+        double thatToBaseUnit = thatLength.convertToBaseUnit();
+        double totalBaseUnit = thisToBaseUnit + thatToBaseUnit;
+        double newValue = totalBaseUnit / this.unit.getConversionFactor();
+        return new Length(newValue,this.unit);
     }
 
-    @Override
-    public boolean equals(Object o) {
-
-        if (this == o) return true;
-
-        if (o == null) return false;
-
-        if (getClass() != o.getClass()) return false;
-
-        Length other = (Length) o;
-
-        return compare(other);
+    private double convertFromBaseToTargetUnit(double lengthInInches,LengthUnit targetUnit){
+        double newValue = lengthInInches/targetUnit.getConversionFactor();
+        return newValue;
     }
 
     @Override
-    public int hashCode() {
-        return Double.hashCode(convertToBaseUnit());
+    public String toString(){
+        return String.format("%.2f %s",this.value,this.unit);
     }
 
-    @Override
-    public String toString() {
-        return String.format("%.2f %s", value, unit);
+    public static void main(String[] args) {
+        Length length1 = new Length(3.0,LengthUnit.FEET);
+        Length length2 = new Length(2.0,LengthUnit.YARDS);
+
+        Length length3 = length1.convertTo(LengthUnit.INCHES);
+        Length length4 = length2.convertTo(LengthUnit.INCHES);
+        System.out.println(length3);
+        System.out.println(length4);
+
     }
 }
-
