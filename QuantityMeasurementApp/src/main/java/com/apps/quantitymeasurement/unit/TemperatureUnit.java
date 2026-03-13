@@ -1,20 +1,12 @@
-package com.apps.quantitymeasurement;
+package com.apps.quantitymeasurement.unit;
+
 import java.util.function.Function;
 
-public enum TemperatureUnit implements IMeasurable{
-    CELSIUS(false),
-    FAHRENHEIT(true),
-    KELVIN(false);
+public enum TemperatureUnit implements IMeasurableUnit {
+    CELSIUS,
+    FAHRENHEIT,
+    KELVIN;
 
-    final boolean isFahrenheit;
-
-    TemperatureUnit(boolean isFahrenheit){
-        this.isFahrenheit = isFahrenheit;
-    }
-
-    SupportsArithmetic supportsArithmetic = () -> false;
-
-    Function<Double,Double> coversionValue;
     final Function<Double,Double> FAHRENHEIT_TO_CELSIUS = (fahrenheit) -> (fahrenheit - 32) * (5.0 / 9.0) ;
     final Function<Double,Double> CELSIUS_TO_FAHRENHEIT = (celsius) -> (celsius * (9.0/5.0)) + 32;
     final Function<Double,Double> CELSIUS_TO_KELVIN = (celsius) -> (celsius + 273.15);
@@ -27,17 +19,8 @@ public enum TemperatureUnit implements IMeasurable{
         return 1.0;
     }
 
-    @Override
     public double convertToBaseUnit(double value) {
         return convertTo(value,TemperatureUnit.CELSIUS);
-    }
-
-    @Override
-    public double convertFromBaseUnit(double value) {
-        if(this == FAHRENHEIT) return CELSIUS_TO_FAHRENHEIT.apply(value);
-        else if (this == KELVIN) return CELSIUS_TO_KELVIN.apply(value);
-        else if(this == CELSIUS) return value;
-        return 0.0;
     }
 
     public double convertTo(double value , TemperatureUnit targetUnit){
@@ -72,25 +55,13 @@ public enum TemperatureUnit implements IMeasurable{
     }
 
     @Override
-    public boolean supportsArithmetic() {
-        return supportsArithmetic.isSupported();
+    public String getUnitName() {
+        return this.name();
     }
 
     @Override
-    public void validateOperationsupports(String operation) {
-        if(!supportsArithmetic.isSupported()){
-            String message = this.name() + " does not support "+ operation + " operations.";
-            throw new UnsupportedOperationException(message);
-        }
+    public String getMeasurementType() {
+        return this.getClass().getSimpleName();
     }
 
-    public static void main(String[] args) {
-        System.out.println("TemperatureUnit Enum");
-        for(TemperatureUnit unit : TemperatureUnit.values()){
-            System.out.println(unit + " has conversion function to base unit : "+ unit.coversionValue);
-        }
-        System.out.println("Does TemperatureUnit support arithmetic operation? " +
-                TemperatureUnit.CELSIUS.supportsArithmetic() + " for CELSIUS, "+
-                TemperatureUnit.FAHRENHEIT.supportsArithmetic() + " for FAHRENHEIT.");
-    }
 }
