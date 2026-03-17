@@ -1,7 +1,6 @@
 package com.apps.quantitymeasurement.entity;
 
 import com.apps.quantitymeasurement.model.QuantityModel;
-
 import java.util.Objects;
 
 public class QuantityMeasurementEntity implements java.io.Serializable{

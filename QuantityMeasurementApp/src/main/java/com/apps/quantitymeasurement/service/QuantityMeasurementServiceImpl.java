@@ -1,18 +1,21 @@
-
 package com.apps.quantitymeasurement.service;
 
+import com.apps.quantitymeasurement.controller.QuantityMeasurementController;
 import com.apps.quantitymeasurement.dto.QuantityDTO;
 import com.apps.quantitymeasurement.entity.QuantityMeasurementEntity;
 import com.apps.quantitymeasurement.exception.QuantityMeasurementException;
 import com.apps.quantitymeasurement.model.QuantityModel;
 import com.apps.quantitymeasurement.repository.IQuantityMeasurementRepository;
 import com.apps.quantitymeasurement.unit.*;
+import java.util.logging.Logger;
 
 public class QuantityMeasurementServiceImpl implements IQuantityMeasurementService{
+    private static final Logger logger = Logger.getLogger(QuantityMeasurementController.class.getName());
     private IQuantityMeasurementRepository repository;
 
     public QuantityMeasurementServiceImpl(IQuantityMeasurementRepository repository){
         this.repository = repository;
+        logger.info("QuantityMeasurementServiceImpl init with repository : "+repository.getClass().getSimpleName());
     }
 
     private enum Operation{
