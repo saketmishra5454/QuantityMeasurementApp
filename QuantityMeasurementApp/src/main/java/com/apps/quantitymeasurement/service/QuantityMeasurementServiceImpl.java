@@ -123,7 +123,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         QuantityModel<?> q1 = getQuantityModel(thisQuantityDTO);
         QuantityModel<?> q2 = getQuantityModel(thatQuantityDTO);
         if (!q1.getUnit().getMeasurementType().equals(q2.getUnit().getMeasurementType())) {
-            throw new QuantityMeasurementException("Cannot add different measurement types");
+            throw new QuantityMeasurementException("Cannot subtract different measurement types");
         }
 
         double baseValue1 = q1.getValue() * q1.getUnit().getConversionFactor();
@@ -143,7 +143,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         QuantityModel<?> target = getQuantityModel(targetUnitDTO);
 
         if (!q1.getUnit().getMeasurementType().equals(q2.getUnit().getMeasurementType())) {
-            throw new QuantityMeasurementException("Cannot add different measurement types");
+            throw new QuantityMeasurementException("Cannot subtract different measurement types");
         }
 
         double base1 = q1.getValue() * q1.getUnit().getConversionFactor();
