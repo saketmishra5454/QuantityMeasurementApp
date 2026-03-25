@@ -1,21 +1,24 @@
+
 package com.apps.quantitymeasurement.service;
 
-import com.apps.quantitymeasurement.controller.QuantityMeasurementController;
 import com.apps.quantitymeasurement.dto.QuantityDTO;
 import com.apps.quantitymeasurement.entity.QuantityMeasurementEntity;
 import com.apps.quantitymeasurement.exception.QuantityMeasurementException;
 import com.apps.quantitymeasurement.model.QuantityModel;
-import com.apps.quantitymeasurement.repository.IQuantityMeasurementRepository;
+import com.apps.quantitymeasurement.repository.QuantityMeasurementRepository;
 import com.apps.quantitymeasurement.unit.*;
-import java.util.logging.Logger;
+import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+
+@Service
 public class QuantityMeasurementServiceImpl implements IQuantityMeasurementService{
-    private static final Logger logger = Logger.getLogger(QuantityMeasurementController.class.getName());
-    private IQuantityMeasurementRepository repository;
+    private final QuantityMeasurementRepository repository;
 
-    public QuantityMeasurementServiceImpl(IQuantityMeasurementRepository repository){
+    public QuantityMeasurementServiceImpl(QuantityMeasurementRepository repository){
         this.repository = repository;
-        logger.info("QuantityMeasurementServiceImpl init with repository : "+repository.getClass().getSimpleName());
     }
 
     private enum Operation{
@@ -25,7 +28,11 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
     public boolean compare(QuantityDTO thisQuantityDTO , QuantityDTO thatQuantityDTO) throws QuantityMeasurementException {
         QuantityModel<?> thisQuantityModel = getQuantityModel(thisQuantityDTO);
         QuantityModel<?> thatQuantityModel = getQuantityModel(thatQuantityDTO);
-        return compare(thisQuantityModel,thatQuantityModel);
+        boolean comparisonResult = compare(thisQuantityModel,thatQuantityModel);
+        String resultString = comparisonResult ? "True" : "False";
+        QuantityMeasurementEntity entity = new QuantityMeasurementEntity(thisQuantityModel,thatQuantityModel,"COMPARE",resultString);
+        repository.save(entity);
+        return comparisonResult;
     }
 
     private boolean compare(QuantityModel<?> thisQuantity, QuantityModel<?> thatQuantity) throws QuantityMeasurementException{
@@ -35,6 +42,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         double baseValue1 = thisQuantity.getValue() * thisQuantity.getUnit().getConversionFactor();
         double baseValue2 = thatQuantity.getValue() * thatQuantity.getUnit().getConversionFactor();
         return Math.abs(baseValue1 - baseValue2) < 0.0001;
+
     }
 
     @Override
@@ -169,6 +177,41 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         return result;
     }
 
+    @Override
+    public List<QuantityMeasurementEntity> getHistory() {
+        return repository.findAll();
+    }
+
+    @Override
+    public List<QuantityMeasurementEntity> findByOperation(String Operation) {
+        return repository.findByOperation(Operation);
+    }
+
+    @Override
+    public List<QuantityMeasurementEntity> findByThisMeasurementType(String measurementType) {
+        return repository.findByThisMeasurementType(measurementType);
+    }
+
+    @Override
+    public List<QuantityMeasurementEntity> findByCreatedAtAfter(LocalDateTime date) {
+        return repository.findByCreatedAtAfter(date);
+    }
+
+    @Override
+    public List<QuantityMeasurementEntity> findByOperationAndIsErrorFalse(String operation) {
+        return repository.findByOperationAndIsErrorFalse(operation);
+    }
+
+    @Override
+    public long countByOperationAndIsErrorFalse(String operation) {
+        return repository.countByOperationAndIsErrorFalse(operation);
+    }
+
+    @Override
+    public List<QuantityMeasurementEntity> findByIsErrorTrue() {
+        return repository.findByIsErrorTrue();
+    }
+
     private QuantityModel<?> getQuantityModel(QuantityDTO dto) throws QuantityMeasurementException {
         String unitName = dto.getUnit();
         String type = dto.getMeasurementType();
@@ -195,4 +238,5 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         }
         return new QuantityModel<>(dto.getValue(), unit);
     }
+
 }
