@@ -1,0 +1,22 @@
+# Maven
+target/
+
+# Logs
+*.log
+
+# IDE
+.idea/
+*.iml
+.classpath
+.project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+bin/
+out/
+
+# Serialized files
+*.ser
