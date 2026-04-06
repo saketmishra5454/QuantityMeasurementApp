@@ -1,4 +1,3 @@
-
 package com.apps.quantitymeasurement.service;
 
 import com.apps.quantitymeasurement.dto.QuantityDTO;
@@ -16,8 +15,6 @@ public interface IQuantityMeasurementService {
     public QuantityDTO subtract(QuantityDTO thisQuantityDTO , QuantityDTO thatQuantityDTO) throws QuantityMeasurementException;
     public QuantityDTO subtract(QuantityDTO thisQuantityDTO , QuantityDTO thatQuantityDTO , QuantityDTO targetUnitDTO) throws QuantityMeasurementException;
     public double divide(QuantityDTO thisQuantityDTO , QuantityDTO thatQuantityDTO) throws QuantityMeasurementException;
-
-
     List<QuantityMeasurementEntity> getHistory();
     List<QuantityMeasurementEntity> findByOperation(String Operation);
     List<QuantityMeasurementEntity> findByThisMeasurementType(String measurementType);
@@ -25,4 +22,5 @@ public interface IQuantityMeasurementService {
     List<QuantityMeasurementEntity> findByOperationAndIsErrorFalse(String operation);
     long countByOperationAndIsErrorFalse(String operation);
     List<QuantityMeasurementEntity> findByIsErrorTrue();
+    void deleteById(Long id);
 }

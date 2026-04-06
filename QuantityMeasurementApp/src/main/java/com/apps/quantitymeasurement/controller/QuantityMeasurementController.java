@@ -4,6 +4,7 @@ import com.apps.quantitymeasurement.dto.TwoQuantityRequest;
 import com.apps.quantitymeasurement.entity.QuantityMeasurementEntity;
 import com.apps.quantitymeasurement.exception.QuantityMeasurementException;
 import com.apps.quantitymeasurement.service.IQuantityMeasurementService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -89,4 +90,10 @@ public class QuantityMeasurementController {
         return service.findByIsErrorTrue();
     }
 
+    // 11. Delete by id
+    @DeleteMapping("/deleteById")
+    public ResponseEntity<String> deleteUser(@RequestParam Long id) {
+        service.deleteById(id);
+        return ResponseEntity.ok("User deleted successfully");
+    }
 }

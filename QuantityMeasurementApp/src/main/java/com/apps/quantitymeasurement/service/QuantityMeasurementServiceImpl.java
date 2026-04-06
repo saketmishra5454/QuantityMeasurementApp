@@ -1,4 +1,3 @@
-
 package com.apps.quantitymeasurement.service;
 
 import com.apps.quantitymeasurement.dto.QuantityDTO;
@@ -123,7 +122,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         QuantityModel<?> q1 = getQuantityModel(thisQuantityDTO);
         QuantityModel<?> q2 = getQuantityModel(thatQuantityDTO);
         if (!q1.getUnit().getMeasurementType().equals(q2.getUnit().getMeasurementType())) {
-            throw new QuantityMeasurementException("Cannot subtract different measurement types");
+            throw new QuantityMeasurementException("Cannot add different measurement types");
         }
 
         double baseValue1 = q1.getValue() * q1.getUnit().getConversionFactor();
@@ -143,7 +142,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         QuantityModel<?> target = getQuantityModel(targetUnitDTO);
 
         if (!q1.getUnit().getMeasurementType().equals(q2.getUnit().getMeasurementType())) {
-            throw new QuantityMeasurementException("Cannot subtract different measurement types");
+            throw new QuantityMeasurementException("Cannot add different measurement types");
         }
 
         double base1 = q1.getValue() * q1.getUnit().getConversionFactor();
@@ -212,6 +211,14 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         return repository.findByIsErrorTrue();
     }
 
+    @Override
+
+    public void deleteById(Long id) {
+        repository.deleteById(id);
+        System.out.println("Operation with id "+id+" deleted");
+    }
+
+
     private QuantityModel<?> getQuantityModel(QuantityDTO dto) throws QuantityMeasurementException {
         String unitName = dto.getUnit();
         String type = dto.getMeasurementType();
@@ -238,5 +245,4 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         }
         return new QuantityModel<>(dto.getValue(), unit);
     }
-
 }
