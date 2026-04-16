@@ -1,8 +1,12 @@
 package com.apps.quantitymeasurement.controller;
 
+import com.apps.quantitymeasurement.dto.AuthResponse;
+import com.apps.quantitymeasurement.dto.LoginRequest;
+import com.apps.quantitymeasurement.dto.RegisterRequest;
 import com.apps.quantitymeasurement.entity.User;
 import com.apps.quantitymeasurement.service.AuthService;
 import com.apps.quantitymeasurement.util.JwtUtil;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,18 +24,25 @@ public class AuthController {
         this.authService = authService;
     }
 
-    // REGISTER
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return authService.register(user);
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+        User createdUser = authService.register(request);
+        return ResponseEntity.ok(new AuthResponse(
+                null,
+                createdUser.getUsername(),
+                "Account created successfully"
+        ));
     }
 
-    // LOGIN
     @PostMapping("/login")
-    public String login(@RequestBody User user) {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
 
-        User validUser = authService.login(user.getUsername(), user.getPassword());
+        User validUser = authService.login(request.getUsername(), request.getPassword());
 
-        return jwtUtil.generateToken(validUser.getUsername());
+        return ResponseEntity.ok(new AuthResponse(
+                jwtUtil.generateToken(validUser.getUsername()),
+                validUser.getUsername(),
+                "Login successful"
+        ));
     }
 }

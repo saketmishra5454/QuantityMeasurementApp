@@ -1,11 +1,16 @@
 package com.apps.quantitymeasurement.controller;
+
+import com.apps.quantitymeasurement.dto.HistoryResponse;
 import com.apps.quantitymeasurement.dto.QuantityDTO;
 import com.apps.quantitymeasurement.dto.TwoQuantityRequest;
 import com.apps.quantitymeasurement.entity.QuantityMeasurementEntity;
 import com.apps.quantitymeasurement.exception.QuantityMeasurementException;
 import com.apps.quantitymeasurement.service.IQuantityMeasurementService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -18,79 +23,75 @@ public class QuantityMeasurementController {
         this.service = service;
     }
 
-    // 1. Compare
     @PostMapping("/compare")
     public boolean compare(@RequestBody TwoQuantityRequest request) throws QuantityMeasurementException {
         return service.compare(request.getQ1(), request.getQ2());
     }
 
-    // 2. Convert
     @PostMapping("/convert")
     public QuantityDTO convert(@RequestBody TwoQuantityRequest request) throws QuantityMeasurementException {
         return service.convert(request.getQ1(), request.getQ2());
     }
 
-    // 3. Add
     @PostMapping("/add")
     public QuantityDTO add(@RequestBody TwoQuantityRequest request) throws QuantityMeasurementException {
-        if(request.getTargetUnit() == null) {
+        if (request.getTargetUnit() == null) {
             return service.add(request.getQ1(), request.getQ2());
         }
         return service.add(request.getQ1(), request.getQ2(), request.getTargetUnit());
     }
 
-    // 4. Subtract
     @PostMapping("/subtract")
     public QuantityDTO subtract(@RequestBody TwoQuantityRequest request) throws QuantityMeasurementException {
-        if(request.getTargetUnit() == null) {
+        if (request.getTargetUnit() == null) {
             return service.subtract(request.getQ1(), request.getQ2());
         }
         return service.subtract(request.getQ1(), request.getQ2(), request.getTargetUnit());
     }
 
-    // 5. Divide
     @PostMapping("/divide")
     public double divide(@RequestBody TwoQuantityRequest request) throws QuantityMeasurementException {
         return service.divide(request.getQ1(), request.getQ2());
     }
 
-    // 5. Get History
     @GetMapping("/getHistory")
-    public List<QuantityMeasurementEntity> getHistory() {
-        return service.getHistory();
+    public ResponseEntity<List<HistoryResponse>> getHistory(Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<HistoryResponse> history = service.getHistory(authentication.getName()).stream()
+                .map(HistoryResponse::fromEntity)
+                .toList();
+
+        return ResponseEntity.ok(history);
     }
 
-    // 6. Find By Operation
     @GetMapping("/operation")
-    public List<QuantityMeasurementEntity> findByOperation(@RequestParam String operation){
+    public List<QuantityMeasurementEntity> findByOperation(@RequestParam String operation) {
         return service.findByOperation(operation);
     }
 
-    // 7. Find By This Measurement Type
     @GetMapping("/measurementType")
-    public List<QuantityMeasurementEntity> findByThisMeasurementType(@RequestParam String measurementType){
+    public List<QuantityMeasurementEntity> findByThisMeasurementType(@RequestParam String measurementType) {
         return service.findByThisMeasurementType(measurementType);
     }
 
-    // 8. Find By Operation and isError false
     @GetMapping("/findByOperation")
-    public List<QuantityMeasurementEntity> findByOperationAndIsErrorFalse(@RequestParam String operation){
+    public List<QuantityMeasurementEntity> findByOperationAndIsErrorFalse(@RequestParam String operation) {
         return service.findByOperationAndIsErrorFalse(operation);
     }
 
-    // 9. Count By Operation and isError false
     @GetMapping("/countByOperation")
-    public long countByOperation(@RequestParam String operation){
+    public long countByOperation(@RequestParam String operation) {
         return service.countByOperationAndIsErrorFalse(operation);
     }
 
-    // 10. Find By is Error true
     @GetMapping("/errorTrue")
-    public List<QuantityMeasurementEntity> findByIsErrorTrue(){
+    public List<QuantityMeasurementEntity> findByIsErrorTrue() {
         return service.findByIsErrorTrue();
     }
 
-    // 11. Delete by id
     @DeleteMapping("/deleteById")
     public ResponseEntity<String> deleteUser(@RequestParam Long id) {
         service.deleteById(id);
