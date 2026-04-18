@@ -26,7 +26,7 @@ public class QuantityMeasurementEntity {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "username", referencedColumnName = "username")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "this_value", nullable = false)
