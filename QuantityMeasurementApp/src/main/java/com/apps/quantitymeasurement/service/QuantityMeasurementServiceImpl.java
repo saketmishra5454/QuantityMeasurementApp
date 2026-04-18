@@ -11,8 +11,10 @@ import com.apps.quantitymeasurement.unit.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.List;
 
 @Service
@@ -63,20 +65,20 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
             QuantityModel<?> resultModel = new QuantityModel<>(convertedValue, target.getUnit());
             QuantityMeasurementEntity entity = new QuantityMeasurementEntity(source, "CONVERT", resultModel);
             persistForCurrentUser(entity);
-            return new QuantityDTO(convertedValue, target.getUnit().getUnitName(), target.getUnit().getMeasurementType());
+            return new QuantityDTO(convertedValue, target.getUnit().getUnitName(), normalizeMeasurementType(target.getUnit().getMeasurementType()));
         } catch (QuantityMeasurementException e) {
             throw new QuantityMeasurementException("Exception Occurred");
         }
     }
 
-    public QuantityDTO convertTo(QuantityModel<?> thisQuantityModel, QuantityModel<?> thatQuantityModel) {
+    public QuantityDTO convertTo(QuantityModel<?> thisQuantityModel, QuantityModel<?> thatQuantityModel) throws QuantityMeasurementException {
         TemperatureUnit thisUnit = (TemperatureUnit) thisQuantityModel.getUnit();
         TemperatureUnit thatUnit = (TemperatureUnit) thatQuantityModel.getUnit();
         double newValue = thisUnit.convertTo(thisQuantityModel.getValue(), thatUnit);
         QuantityModel<TemperatureUnit> resultModel = new QuantityModel<>(newValue, thatUnit);
         QuantityMeasurementEntity entity = new QuantityMeasurementEntity(thisQuantityModel, "CONVERT", resultModel);
         persistForCurrentUser(entity);
-        return new QuantityDTO(newValue, thatUnit.getUnitName(), thatUnit.getMeasurementType());
+        return new QuantityDTO(newValue, thatUnit.getUnitName(), normalizeMeasurementType(thatUnit.getMeasurementType()));
     }
 
     @Override
@@ -94,7 +96,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         QuantityModel<?> resultModel = new QuantityModel<>(resultValue, q1.getUnit());
         QuantityMeasurementEntity entity = new QuantityMeasurementEntity(q1, q2, "ADD", resultModel);
         persistForCurrentUser(entity);
-        return new QuantityDTO(resultValue, q1.getUnit().getUnitName(), q1.getUnit().getMeasurementType());
+        return new QuantityDTO(resultValue, q1.getUnit().getUnitName(), normalizeMeasurementType(q1.getUnit().getMeasurementType()));
     }
 
     @Override
@@ -114,7 +116,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         QuantityModel<?> resultModel = new QuantityModel<>(converted, target.getUnit());
         QuantityMeasurementEntity entity = new QuantityMeasurementEntity(q1, q2, "ADD", resultModel);
         persistForCurrentUser(entity);
-        return new QuantityDTO(converted, target.getUnit().getUnitName(), target.getUnit().getMeasurementType());
+        return new QuantityDTO(converted, target.getUnit().getUnitName(), normalizeMeasurementType(target.getUnit().getMeasurementType()));
     }
 
     @Override
@@ -132,7 +134,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         QuantityModel<?> resultModel = new QuantityModel<>(resultValue, q1.getUnit());
         QuantityMeasurementEntity entity = new QuantityMeasurementEntity(q1, q2, "SUBTRACT", resultModel);
         persistForCurrentUser(entity);
-        return new QuantityDTO(resultValue, q1.getUnit().getUnitName(), q1.getUnit().getMeasurementType());
+        return new QuantityDTO(resultValue, q1.getUnit().getUnitName(), normalizeMeasurementType(q1.getUnit().getMeasurementType()));
     }
 
     @Override
@@ -152,7 +154,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         QuantityModel<?> resultModel = new QuantityModel<>(converted, target.getUnit());
         QuantityMeasurementEntity entity = new QuantityMeasurementEntity(q1, q2, "SUBTRACT", resultModel);
         persistForCurrentUser(entity);
-        return new QuantityDTO(converted, target.getUnit().getUnitName(), target.getUnit().getMeasurementType());
+        return new QuantityDTO(converted, target.getUnit().getUnitName(), normalizeMeasurementType(target.getUnit().getMeasurementType()));
     }
 
     @Override
@@ -238,7 +240,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 
     private QuantityModel<?> getQuantityModel(QuantityDTO dto) throws QuantityMeasurementException {
         String unitName = dto.getUnit();
-        String type = dto.getMeasurementType();
+        String type = normalizeMeasurementType(dto.getMeasurementType());
         IMeasurableUnit unit;
 
         switch (type) {
@@ -259,5 +261,20 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         }
 
         return new QuantityModel<>(dto.getValue(), unit);
+    }
+
+    private String normalizeMeasurementType(String measurementType) throws QuantityMeasurementException {
+        if (!StringUtils.hasText(measurementType)) {
+            throw new QuantityMeasurementException("Measurement type is required");
+        }
+
+        String normalized = measurementType.trim().toUpperCase(Locale.ROOT);
+        return switch (normalized) {
+            case "LENGTH", "LENGTHUNIT" -> "LENGTH";
+            case "WEIGHT", "WEIGHTUNIT" -> "WEIGHT";
+            case "VOLUME", "VOLUMEUNIT" -> "VOLUME";
+            case "TEMPERATURE", "TEMPERATUREUNIT" -> "TEMPERATURE";
+            default -> throw new QuantityMeasurementException("Invalid measurement type");
+        };
     }
 }
